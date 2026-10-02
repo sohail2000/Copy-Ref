@@ -1,0 +1,28 @@
+{
+  "name": "copy-ref",
+  "displayName": "Copy Ref",
+  "description": "Copy workspace-relative file references with selected line ranges.",
+  "version": "0.1.0",
+  "publisher": "agent-msohail",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [{ "command": "localCopyRef.copyReference", "title": "Copy Ref: Copy Relative Path with Lines" }],
+    "keybindings": [{ "command": "localCopyRef.copyReference", "key": "alt+c", "mac": "alt+c", "when": "editorTextFocus" }],
+    "menus": { "editor/context": [{ "command": "localCopyRef.copyReference", "group": "9_cutcopypaste@20" }] }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "test": "npm run compile && node --test test/*.test.cjs",
+    "vscode:prepublish": "npm run compile",
+    "package": "vsce package --no-dependencies --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@types/vscode": "1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.0.0"
+  }
+}
