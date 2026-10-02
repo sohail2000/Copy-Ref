@@ -1,65 +1,98 @@
-# Copy Ref
+# Copy Ref to Codex
 
-A small extension for VS Code and Cursor that copies a file path with line numbers, relative to your workspace.
+A small extension for VS Code and Cursor that copies a workspace-relative code reference and opens a new Codex draft for the local workspace.
 
 ```text
-packages/web/src/components/Example.tsx:29-43
+src/file.ts:10-20
 ```
+
+Select code, run the command, and add your question in Codex before sending. The extension copies only the reference, not the source code. It does not send a message or start an AI task.
+
+## Based on Copy Ref
+
+This version builds on [Copy Ref](https://github.com/sohail2000/Copy-Ref). It keeps the original reference formatting and adds a Codex new-chat link, local workspace validation, and tests for the handoff.
+
+Its extension identity is `agent-msohail.copy-ref-to-codex`, separate from the original `agent-msohail.copy-ref`. Installing it updates earlier Copy Ref to Codex versions and does not replace the original Copy Ref extension.
 
 ## Install
 
-To build the extension, install Node.js and npm, then run these commands in the project folder:
+Install Node.js and npm, then run these commands in the project folder:
 
 ```sh
 npm ci
+npm test
 npm run package
 ```
 
 In VS Code or Cursor:
 
-1. Open the Command Palette with **Cmd+Shift+P** on macOS or **Ctrl+Shift+P** on Windows/Linux.
+1. Open the Command Palette.
 2. Run **Extensions: Install from VSIX...**.
-3. Select the generated `copy-ref-0.1.0.vsix` file in the project folder.
+3. Select `copy-ref-to-codex-0.2.1.vsix` from the project folder.
+4. Reload the editor if asked.
+
+The Codex desktop app must be installed and able to open `codex://` links.
 
 ## Usage
 
-1. Open a folder or workspace, then open a saved file inside it.
-2. Place the cursor on a line or select some code.
-3. Press **Option+C** on macOS or **Alt+C** on Windows/Linux.
-4. Paste the reference wherever you need it.
+1. Open a local folder or workspace and a saved file inside it.
+2. Place the cursor on a line or select code.
+3. On macOS, press **Cmd+S** while the editor has focus.
+4. Check the workspace and reference in the Codex draft, add your question, and send it yourself.
 
-You can also use **Copy Ref: Copy Relative Path with Lines** from the Command Palette or the editor's right-click menu. Normal copy shortcuts keep working.
+On any platform, use **Copy Ref to Codex: Open Reference in New Chat** from the Command Palette or the editor's right-click menu. Windows and Linux have no default shortcut.
+
+### Save shortcut conflict
+
+The default macOS shortcut **Cmd+S** overrides normal Save while the editor has focus. Running this extension does not save the file. Use **File → Save**, or change the extension shortcut in **Keyboard Shortcuts**.
+
+If another binding takes priority, search for the command in **Keyboard Shortcuts** and use **Show Same Keybindings** to inspect conflicts. The extension does not edit user bindings. Remove any old custom binding if you no longer want it.
+
+Cmd+C and Option+C are not assigned by this extension.
+
+## Reference behavior
 
 | Selection | Copied reference |
 | --- | --- |
 | Cursor or single line | `src/file.ts:10` |
 | Multiple lines | `src/file.ts:10-20` |
-| Multiple selections | One reference per line, sorted by line number, with duplicates removed |
+| Multiple selections | One reference per line, sorted by line number, with exact duplicates removed |
 
-Selecting upward works the same as selecting downward. If a selection ends at the start of the next line, that line is excluded.
+- Reverse selections work the same as forward selections.
+- If a selection ends at the start of the next line, that unselected line is excluded.
+- In a multi-root workspace, the active file's containing workspace supplies the relative path and Codex workspace path.
+- Unsaved edits in a saved file use the line numbers displayed in the editor.
+- Local Git index and revision editors use the original file path and displayed line numbers. References do not include a revision, so lines may differ from the current file.
+- Untitled files, files outside the workspace, unsupported virtual documents, and file names containing control characters are rejected without changing the clipboard.
+- Remote workspaces are rejected. Use the original Copy Ref extension to copy remote references for manual pasting.
 
-If the shortcut runs another command, open **Keyboard Shortcuts**, search for **Copy Ref**, and change its shortcut. Use **Show Same Keybindings** to check for conflicts.
+## Codex handoff
 
-## Notes
+Each invocation opens a `codex://new` URL with an encoded `prompt` containing the reference and a `path` containing the local workspace path. It requests a new draft; it does not find the latest chat or append to an existing chat. Do not assume repeated invocations accumulate references in one draft.
 
-- Only the reference is copied, not the source code. The extension does not change files or make network requests.
-- Untitled files, files outside the workspace, unsupported virtual documents, and file names with control characters are rejected.
-- Paths are relative to the containing workspace folder. Folder names are not included to distinguish matching paths in different workspace roots.
-- Line numbers match the version shown in the editor, including unsaved edits and local Git versions. References do not include a Git revision.
-- Normal remote workspace files are supported. Remote Git virtual documents may not resolve.
+No target chat setup is required. Old saved targets are ignored. The command ID `copyRefToCodex.copyAndOpen` remains available, along with the hidden compatibility alias `copyRefToCodex.openNewChat`. Old target setup commands are no longer registered.
+
+Spaces, Unicode, punctuation, and multi-selection newlines are URL-encoded. Large selections with many separate ranges may reach OS URL size limits.
+
+If copying fails, no link opens. If opening fails, the copied reference remains available for manual pasting. A successful handoff means the OS accepted the link; it does not prove that Codex selected the correct workspace or populated the composer.
+
+There are no runtime dependencies, model calls, telemetry, simulated keystrokes, or direct reads of Codex app state.
 
 ## Development
 
 ```sh
 npm run compile
 npm test
+npm run package
 ```
 
-- `src/extension.ts` registers the command and handles the editor and clipboard.
+- `src/extension.ts` registers commands and handles editor validation, clipboard writes, and app handoff.
 - `src/reference.ts` formats paths and line ranges.
-- `test/` covers formatting, workspace validation, Git paths, and clipboard errors.
+- `src/links.ts` builds the new-chat URL.
+- `test/` covers formatting, URL encoding, local Git paths, invalid editor states, remote rejection, old target handling, and clipboard/opening failures.
+- `dist/` is generated by compilation. Dependencies, generated output, and VSIX packages are excluded from Git.
 
-After installing, manually check the shortcut and staged/diff editors in VS Code or Cursor. Automated tests do not cover actual editor keyboard handling.
+Automated tests mock the editor API. Actual Cursor/VS Code shortcut handling and Codex composer/workspace behavior still require a manual end-to-end check, including repeated invocations and staged/diff editors.
 
 ## License
 

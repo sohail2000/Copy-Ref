@@ -1,18 +1,41 @@
 {
-  "name": "copy-ref",
-  "displayName": "Copy Ref",
-  "description": "Copy workspace-relative file references with selected line ranges.",
-  "version": "0.1.0",
+  "name": "copy-ref-to-codex",
+  "displayName": "Copy Ref to Codex",
+  "description": "Copy a code reference and open a new Codex draft without setup.",
+  "version": "0.2.1",
   "publisher": "agent-msohail",
   "private": true,
   "license": "UNLICENSED",
-  "engines": { "vscode": "^1.85.0" },
-  "categories": ["Other"],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [{ "command": "localCopyRef.copyReference", "title": "Copy Ref: Copy Relative Path with Lines" }],
-    "keybindings": [{ "command": "localCopyRef.copyReference", "key": "alt+c", "mac": "alt+c", "when": "editorTextFocus" }],
-    "menus": { "editor/context": [{ "command": "localCopyRef.copyReference", "group": "9_cutcopypaste@20" }] }
+    "commands": [
+      {
+        "command": "copyRefToCodex.copyAndOpen",
+        "title": "Copy Ref to Codex: Open Reference in New Chat"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "copyRefToCodex.copyAndOpen",
+        "key": "cmd+s",
+        "mac": "cmd+s",
+        "when": "isMac && editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "copyRefToCodex.copyAndOpen",
+          "group": "9_cutcopypaste@20"
+        }
+      ]
+    }
   },
   "scripts": {
     "compile": "tsc -p .",
@@ -24,5 +47,8 @@
     "@types/vscode": "1.85.0",
     "@vscode/vsce": "^3.0.0",
     "typescript": "^5.0.0"
-  }
+  },
+  "extensionKind": [
+    "ui"
+  ]
 }
