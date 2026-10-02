@@ -2,7 +2,7 @@
   "name": "copy-ref-to-codex",
   "displayName": "Copy Ref to Codex",
   "description": "Copy a code reference and open a new Codex draft without setup.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "agent-msohail",
   "private": true,
   "license": "UNLICENSED",
@@ -23,8 +23,8 @@
     "keybindings": [
       {
         "command": "copyRefToCodex.copyAndOpen",
-        "key": "cmd+s",
-        "mac": "cmd+s",
+        "key": "cmd+i",
+        "mac": "cmd+i",
         "when": "isMac && editorTextFocus"
       }
     ],

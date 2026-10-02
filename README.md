@@ -28,7 +28,7 @@ In VS Code or Cursor:
 
 1. Open the Command Palette.
 2. Run **Extensions: Install from VSIX...**.
-3. Select `copy-ref-to-codex-0.2.1.vsix` from the project folder.
+3. Select `copy-ref-to-codex-0.2.2.vsix` from the project folder.
 4. Reload the editor if asked.
 
 The Codex desktop app must be installed and able to open `codex://` links.
@@ -37,16 +37,26 @@ The Codex desktop app must be installed and able to open `codex://` links.
 
 1. Open a local folder or workspace and a saved file inside it.
 2. Place the cursor on a line or select code.
-3. On macOS, press **Cmd+S** while the editor has focus.
+3. On macOS, press **Cmd+I** while the editor has focus.
 4. Check the workspace and reference in the Codex draft, add your question, and send it yourself.
 
 On any platform, use **Copy Ref to Codex: Open Reference in New Chat** from the Command Palette or the editor's right-click menu. Windows and Linux have no default shortcut.
 
-### Save shortcut conflict
+### Shortcut conflicts
 
-The default macOS shortcut **Cmd+S** overrides normal Save while the editor has focus. Running this extension does not save the file. Use **File → Save**, or change the extension shortcut in **Keyboard Shortcuts**.
+The default macOS shortcut **Cmd+I** opens a Codex draft while the editor has focus. It can override autocomplete actions such as Trigger Suggest, Focus Suggestion, and Toggle Suggestion Details, as well as Cursor's Agent shortcut. Cmd+S remains available for normal Save.
 
-If another binding takes priority, search for the command in **Keyboard Shortcuts** and use **Show Same Keybindings** to inspect conflicts. The extension does not edit user bindings. Remove any old custom binding if you no longer want it.
+User bindings take priority over extension defaults. To make this command take priority in the editor, add this entry at the end of your user `keybindings.json` array:
+
+```json
+{
+  "key": "cmd+i",
+  "command": "copyRefToCodex.copyAndOpen",
+  "when": "isMac && editorTextFocus"
+}
+```
+
+This keeps existing Cmd+I bindings available outside the editor. Use **Show Same Keybindings** in **Keyboard Shortcuts** to inspect conflicts, and remove any old custom Cmd+S binding for this command. The extension does not edit user bindings itself.
 
 Cmd+C and Option+C are not assigned by this extension.
 
